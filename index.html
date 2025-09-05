@@ -336,8 +336,8 @@
         async function loadData() {
             try {
                 const [metaResponse, recordsResponse] = await Promise.all([
-                    fetch('metadata.json'),
-                    fetch('registros.csv')
+                    fetch('./metadata.json'),
+                    fetch('./registros.csv')
                 ]);
 
                 if (!metaResponse.ok) throw new Error(`Error al cargar metadata.json: ${metaResponse.statusText}`);

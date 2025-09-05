@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe Interactivo de Resultados</title>
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --secondary-color: #007bff;
+            --background-color: #f8f9fa;
+            --font-color: #333;
+            --header-bg: #343a40;
+            --header-font: #ffffff;
+            --border-color: #dee2e6;
+            --row-hover: #e9ecef;
+            --score-superior-bg: #d4edda; --score-superior-text: #155724;
+            --score-alto-bg: #cce5ff; --score-alto-text: #004085;
+            --score-basico-bg: #fff3cd; --score-basico-text: #856404;
+            --score-bajo-bg: #f8d7da; --score-bajo-text: #721c24;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--font-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+        
+        #schoolLogo {
+            max-height: 80px;
+            width: auto;
+            margin-bottom: 15px;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 2.2em;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            color: #6c757d;
+            font-size: 1.1em;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            background-color: #fdfdff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #495057;
+        }
+
+        .filter-group input, .filter-group select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        .filter-group input:focus, .filter-group select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        .view-toggle {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .view-toggle button {
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            border: 1px solid var(--secondary-color);
+            background-color: #fff;
+            color: var(--secondary-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .view-toggle button.active {
+            background-color: var(--secondary-color);
+            color: #fff;
+        }
+        
+        .stats-and-legend {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stats {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .legend {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+            align-items: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 70vh;
+        }
+
+        table {
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        thead th {
+            background-color: var(--header-bg);
+            color: var(--header-font);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            cursor: pointer;
+        }
+        
+        thead th:hover {
+            background-color: #495057;
+        }
+
+        tbody tr:hover {
+            background-color: var(--row-hover);
+        }
+
+        .score { text-align: center; font-weight: 600; border-radius: 4px; padding: 5px 8px; }
+        .score-superior { background-color: var(--score-superior-bg); color: var(--score-superior-text); }
+        .score-alto { background-color: var(--score-alto-bg); color: var(--score-alto-text); }
+        .score-basico { background-color: var(--score-basico-bg); color: var(--score-basico-text); }
+        .score-bajo { background-color: var(--score-bajo-bg); color: var(--score-bajo-text); }
+        .text-center { text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <img id="schoolLogo" src="./logoeducate.png" alt="Logo de la Empresa" onerror="this.style.display='none'">
+            <h1 id="schoolNameHeader">Informe Interactivo de Resultados</h1>
+            <p id="schoolInfoSubHeader"></p>
+        </header>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="gradeFilter">Grado</label>
+                <select id="gradeFilter"></select>
+            </div>
+            <div class="filter-group">
+                <label for="groupFilter">Grupo</label>
+                <select id="groupFilter"></select>
+            </div>
+            <div class="filter-group">
+                <label for="testFilter">Prueba</label>
+                <select id="testFilter"></select>
+            </div>
+            <div class="filter-group">
+                <label for="searchStudent">Buscar Estudiante</label>
+                <input type="text" id="searchStudent" placeholder="Escriba un nombre...">
+            </div>
+            <div class="filter-group">
+                <label for="averageFilter">Desempeño General</label>
+                <select id="averageFilter">
+                    <option value="all">Mostrar todos</option>
+                    <option value="superior">Superior (3.81 - 5.0)</option>
+                    <option value="alto">Alto (3.21 - 3.8)</option>
+                    <option value="basico">Básico (2.51 - 3.2)</option>
+                    <option value="bajo">Bajo (&lt;= 2.5)</option>
+                </select>
+            </div>
+            <div class="view-toggle">
+                <button id="viewAreas" class="active">Vista por Áreas</button>
+                <button id="viewComponents">Vista por Componentes</button>
+            </div>
+        </div>
+
+        <div class="stats-and-legend">
+            <div class="stats" id="statsCounter">Cargando datos...</div>
+            <div class="legend">
+                <div class="legend-item"><span class="legend-color" style="background-color: var(--score-superior-bg);"></span>Superior</div>
+                <div class="legend-item"><span class="legend-color" style="background-color: var(--score-alto-bg);"></span>Alto</div>
+                <div class="legend-item"><span class="legend-color" style="background-color: var(--score-basico-bg);"></span>Básico</div>
+                <div class="legend-item"><span class="legend-color" style="background-color: var(--score-bajo-bg);"></span>Bajo</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead id="tableHeader"></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        
+        let allRecords = [];
+        const gradeFilter = document.getElementById('gradeFilter');
+        const groupFilter = document.getElementById('groupFilter');
+        const testFilter = document.getElementById('testFilter');
+        const searchStudent = document.getElementById('searchStudent');
+        const averageFilter = document.getElementById('averageFilter');
+        const viewAreasBtn = document.getElementById('viewAreas');
+        const viewComponentsBtn = document.getElementById('viewComponents');
+        const tableHeader = document.getElementById('tableHeader');
+        const tableBody = document.getElementById('tableBody');
+        const statsCounter = document.getElementById('statsCounter');
+        const schoolNameHeader = document.getElementById('schoolNameHeader');
+        const schoolInfoSubHeader = document.getElementById('schoolInfoSubHeader');
+
+        let currentView = 'areas';
+        let sortConfig = { key: 'Estudiante', direction: 'ascending' };
+
+        const headers = {
+            areas: [
+                { key: 'Grado', label: 'Grado' },
+                { key: 'Grupo', label: 'Grupo' },
+                { key: 'Prueba', label: 'Prueba' },
+                { key: 'Estudiante', label: 'Estudiante' },
+                { key: 'Promedio_General', label: 'Prom. General' },
+                { key: 'Promedio_Matematicas', label: 'Matemáticas' },
+                { key: 'Promedio_Lenguaje', label: 'Lenguaje' },
+                { key: 'Promedio_Naturales', label: 'C. Naturales' },
+                { key: 'Promedio_Sociales', label: 'Sociales' },
+                { key: 'Promedio_Ingles', label: 'Inglés' }
+            ],
+            components: [
+                { key: 'Grado', label: 'Grado' },
+                { key: 'Grupo', label: 'Grupo' },
+                { key: 'Prueba', label: 'Prueba' },
+                { key: 'Estudiante', label: 'Estudiante' },
+                { key: 'Promedio_General', label: 'Prom. General' },
+                { key: 'ARITMETICA', label: 'Aritmética' },
+                { key: 'GEOMETRIA', label: 'Geometría' },
+                { key: 'ESTADISTICA', label: 'Estadística' },
+                { key: 'LENGUAJE', label: 'Lenguaje' },
+                { key: 'BIOLOGIA', label: 'Biología' },
+                { key: 'FISICA', label: 'Física' },
+                { key: 'CIENCIA TECNOLOGIA Y SOCIEDAD', label: 'CTS' },
+                { key: 'CIENCIAS SOCIALES', label: 'C. Sociales' },
+                { key: 'COMPETENCIAS CIUDADANAS', label: 'C. Ciudadanas' },
+                { key: 'INGLES', label: 'Inglés' }
+            ]
+        };
+        
+        function parseCSV(text) {
+            const lines = text.trim().replace(/\r/g, '').split('\n');
+            const header = lines[0].split(';');
+            const records = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim() === '') continue;
+                const values = lines[i].split(';');
+                const record = {};
+                for (let j = 0; j < header.length; j++) {
+                    const key = header[j].trim();
+                    const value = values[j] ? values[j].trim() : '';
+                    
+                    if (key === 'Grado' || key === 'Grupo') {
+                        record[key] = value;
+                    } else if (!isNaN(value) && value !== '') {
+                        record[key] = parseFloat(value);
+                    } else {
+                        record[key] = value === '' ? null : value;
+                    }
+                }
+                records.push(record);
+            }
+            return records;
+        }
+
+        async function loadData() {
+            try {
+                const [metaResponse, recordsResponse] = await Promise.all([
+                    fetch('./metadata.json'),
+                    fetch('./registros.csv')
+                ]);
+
+                if (!metaResponse.ok) throw new Error(`Error al cargar metadata.json: ${metaResponse.statusText}`);
+                if (!recordsResponse.ok) throw new Error(`Error al cargar registros.csv: ${recordsResponse.statusText}`);
+
+                const metadata = await metaResponse.json();
+                const recordsText = await recordsResponse.text();
+                
+                allRecords = parseCSV(recordsText);
+                
+                initialize(metadata);
+
+            } catch (error) {
+                statsCounter.textContent = `Error: No se pudieron cargar los archivos de datos. Asegúrese de que 'index.html', 'metadata.json' y 'registros.csv' estén en la misma carpeta.`;
+                console.error(error);
+            }
+        }
+
+        function populateHeader(metadata) {
+            schoolNameHeader.textContent = metadata.schoolName;
+            schoolInfoSubHeader.textContent = `DANE: ${metadata.schoolDane}`;
+        }
+
+        function populateFilters(metadata) {
+            const { grades, groups, tests } = metadata.filters;
+            gradeFilter.innerHTML = ['Todos', ...grades].map(g => `<option value="${g}">${g}</option>`).join('');
+            groupFilter.innerHTML = ['Todos', ...groups].map(g => `<option value="${g}">${g}</option>`).join('');
+            testFilter.innerHTML = ['Todas', ...tests].map(t => `<option value="${t}">${t}</option>`).join('');
+        }
+
+        function getScoreClass(score) {
+            if (score === null || score === undefined || score === '-') return '';
+            const numScore = parseFloat(score);
+            if (numScore >= 3.81) return 'score-superior';
+            if (numScore >= 3.21) return 'score-alto';
+            if (numScore >= 2.51) return 'score-basico';
+            return 'score-bajo';
+        }
+
+        function renderTable(data) {
+            let headerHTML = '<tr>';
+            headers[currentView].forEach(header => {
+                headerHTML += `<th data-key="${header.key}">${header.label}</th>`;
+            });
+            headerHTML += '</tr>';
+            tableHeader.innerHTML = headerHTML;
+
+            let bodyHTML = '';
+            data.forEach(student => {
+                bodyHTML += '<tr>';
+                headers[currentView].forEach(header => {
+                    const value = student[header.key];
+                    const formattedValue = (typeof value === 'number' && !isNaN(value)) ? value.toFixed(1) : (value || '-');
+                    
+                    if (header.key.startsWith('Promedio_') || (typeof value === 'number' && header.key !== 'Grado' && header.key !== 'Orden_Aplicacion')) {
+                         bodyHTML += `<td class="text-center"><span class="score ${getScoreClass(value)}">${formattedValue}</span></td>`;
+                    } else {
+                        bodyHTML += `<td>${formattedValue}</td>`;
+                    }
+                });
+                bodyHTML += '</tr>';
+            });
+            tableBody.innerHTML = bodyHTML;
+            statsCounter.textContent = `Mostrando ${data.length} de ${allRecords.length} registros.`;
+            
+            document.querySelectorAll('#tableHeader th').forEach(th => {
+                th.addEventListener('click', () => {
+                    const key = th.dataset.key;
+                    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+                        sortConfig.direction = 'descending';
+                    } else {
+                        sortConfig.key = key;
+                        sortConfig.direction = 'ascending';
+                    }
+                    applyFilters();
+                });
+            });
+        }
+
+        function applyFilters() {
+            let filteredData = [...allRecords];
+
+            if (gradeFilter.value !== 'Todos') {
+                filteredData = filteredData.filter(s => s.Grado == gradeFilter.value);
+            }
+            if (groupFilter.value !== 'Todos') {
+                filteredData = filteredData.filter(s => s.Grupo == groupFilter.value);
+            }
+            if (testFilter.value !== 'Todas') {
+                filteredData = filteredData.filter(s => s.Prueba == testFilter.value);
+            }
+            if (searchStudent.value) {
+                const searchTerm = searchStudent.value.toLowerCase();
+                filteredData = filteredData.filter(s => s.Estudiante.toLowerCase().includes(searchTerm));
+            }
+            if (averageFilter.value !== 'all') {
+                switch(averageFilter.value) {
+                    case 'superior':
+                        filteredData = filteredData.filter(s => s.Promedio_General >= 3.81);
+                        break;
+                    case 'alto':
+                        filteredData = filteredData.filter(s => s.Promedio_General >= 3.21 && s.Promedio_General < 3.81);
+                        break;
+                    case 'basico':
+                        filteredData = filteredData.filter(s => s.Promedio_General >= 2.51 && s.Promedio_General < 3.21);
+                        break;
+                    case 'bajo':
+                        filteredData = filteredData.filter(s => s.Promedio_General <= 2.5);
+                        break;
+                }
+            }
+            
+            filteredData.sort((a, b) => {
+                const valA = a[sortConfig.key];
+                const valB = b[sortConfig.key];
+                
+                if (typeof valA === 'number' && typeof valB === 'number') {
+                    return sortConfig.direction === 'ascending' ? valA - valB : valB - valA;
+                }
+                
+                const strA = String(valA).toLowerCase();
+                const strB = String(valB).toLowerCase();
+
+                if (strA < strB) return sortConfig.direction === 'ascending' ? -1 : 1;
+                if (strA > strB) return sortConfig.direction === 'ascending' ? 1 : -1;
+                return 0;
+            });
+
+            renderTable(filteredData);
+        }
+        
+        function initialize(metadata) {
+            populateHeader(metadata);
+            populateFilters(metadata);
+            applyFilters();
+            [gradeFilter, groupFilter, testFilter, averageFilter].forEach(el => {
+                el.addEventListener('change', applyFilters);
+            });
+            searchStudent.addEventListener('input', applyFilters);
+
+            viewAreasBtn.addEventListener('click', () => {
+                currentView = 'areas';
+                viewAreasBtn.classList.add('active');
+                viewComponentsBtn.classList.remove('active');
+                applyFilters();
+            });
+
+            viewComponentsBtn.addEventListener('click', () => {
+                currentView = 'components';
+                viewComponentsBtn.classList.add('active');
+                viewAreasBtn.classList.remove('active');
+                applyFilters();
+            });
+        }
+
+        loadData();
+    });
+    </script>
+</body>
+</html>

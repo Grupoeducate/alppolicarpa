@@ -1,0 +1,22 @@
+{
+  "schoolName": "ALFONSO LOPEZ PUMAREJO - SEDE POLICARPA SALAVARRIETA ( VALLE DEL CAUCA - CARTAGO )",
+  "schoolDane": "20240818",
+  "filters": {
+    "grades": [
+      "03",
+      "04",
+      "05"
+    ],
+    "groups": [
+      "01"
+    ],
+    "tests": [
+      "ALFA",
+      "BETA",
+      "DELTA"
+    ],
+    "jornadas": [
+      "JM",
+      "JT"
+    ]
+  }
